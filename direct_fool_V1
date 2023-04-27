@@ -1,0 +1,148 @@
+library(tidyverse)
+library(keras)
+library(tensorflow)
+library(reticulate)
+library(jpeg)
+install_tensorflow(extra_packages="pillow")
+install_keras()
+
+setwd("C:/Users/kndoughe/Desktop/Project2")
+getwd()
+
+#load model
+model <- load_model_tf("./dandelion_model")
+summary(model)
+
+#function, image is the image that gets changed, P is pixel %
+dandelion_to_grass <- function (x, P) {
+  x_size <- dim(x)[1]
+  y_size <- dim(x)[1]
+  for (i in 1:x_size) {
+    for (j in 1:y_size) {
+      if ((((j-1) * x_size) + i) %% P == 0) {
+        if((x[i,j,1] > 0.8) && (x[i,j,2] > 0.8) && (x[i,j,3]  < 0.8)) {
+          x[i,j,2] <- 1 #green 
+          x[i,j,3] <- 0 #blue 
+        }
+      }
+    }
+  }
+  
+  #convert x array into an image, save image as "./grass/modified_grass.jpg" 
+  writeJPEG(x, "./grass/modified_grass.jpg")
+  
+  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
+  
+  graphics::plot(1, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="", ylab="")
+  graphics::rasterImage(modified_image, 0, 0, 1, 1)
+}
+
+grass_to_dandelion <- function (x, P) {
+  x_size <- dim(x)[1]
+  y_size <- dim(x)[1]
+  for (i in 1:x_size) {
+    for (j in 1:y_size) {
+      if ((((j-1) * x_size) + i) %% P == 0) {  
+        if((x[i,j,1] < 0.3) && (x[i,j,2] > 0.3) && (x[i,j,3] < 0.3)) {
+        #adding yellow to make it look like dandelion
+          x[i,j,1] <- 1 # red
+          x[i,j,2] <- 1 #green 
+          x[i,j,3] <- 0 #blue
+        }
+      }
+    }
+  }
+  
+  #convert x array into an image, save image as "./grass/modified_grass.jpg" 
+  writeJPEG(x, "./grass/modified_grass.jpg")
+  
+  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
+  
+  graphics::plot(1, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="", ylab="")
+  graphics::rasterImage(modified_image, 0, 0, 1, 1)
+}
+
+
+#testing
+target_size <- c(224, 224)
+
+#grass (Brightspace)
+
+f=list.files("./grass")
+for (i in f){
+  test_image <- image_load(paste("./grass/",i,sep=""),
+                           target_size = target_size)
+  x <- image_to_array(test_image)
+  x <- x/255
+  
+  #change the image
+  P <- 5
+  grass_to_dandelion(x, P)
+  
+  new_img <- image_load("./grass/modified_grass.jpg",
+                        target_size = target_size)
+  new <- image_to_array(new_img)
+  new <- array_reshape(new, c(1, dim(new)))
+  
+  
+  pred <- model %>% predict(new)
+  #if(pred[1,2]<0.50){
+  print(pred)
+  #}
+}
+
+#dandelions (Brightspace)
+f=list.files("./dandelions")
+for (i in f){
+  test_image <- image_load(paste("./dandelions/",i,sep=""),
+                           target_size = target_size)
+  x <- image_to_array(test_image)
+  x <- x/255
+  
+  #change the image
+  P <- 5
+  dandelion_to_grass(x, P)
+  
+  new_img <- image_load("./grass/modified_grass.jpg",
+                        target_size = target_size)
+  new <- image_to_array(new_img)
+  new <- array_reshape(new, c(1, dim(new)))
+  
+  
+  pred <- model %>% predict(new)
+  #if(pred[1,2]<0.50){
+  print(pred)
+  #}
+  #if(pred[1,1]<0.50){
+  #  print(i)
+  #}
+}
+
+
+
+#code given, runs model without change to img
+res=c("","")
+f=list.files("./grass")
+for (i in f){
+  test_image <- image_load(paste("./grass/",i,sep=""),
+                           target_size = target_size)
+  x <- image_to_array(test_image)
+  x <- array_reshape(x, c(1, dim(x)))
+  x <- x/255
+  
+  pred <- model %>% predict(x)
+  print(pred)
+}
+
+res=c("","")
+f=list.files("./dandelions")
+for (i in f){
+  test_image <- image_load(paste("./dandelions/",i,sep=""),
+                           target_size = target_size)
+  x <- image_to_array(test_image)
+  x <- array_reshape(x, c(1, dim(x)))
+  x <- x/255
+  
+  pred <- model %>% predict(x)
+  print(pred)
+}
