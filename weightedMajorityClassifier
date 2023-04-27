@@ -1,3 +1,4 @@
+# Libraries
 library("tensorflow")
 library("keras")
 library("magick")
@@ -5,8 +6,20 @@ library("foreach")
 library("doParallel")
 library("plyr")
 library("caret")
+library(tidyverse)
+library(reticulate)
+library(imager)
 
-# Part 1: Five Algorithms
+# Load pre-trained model
+model=load_model_tf("/Users/Brian Williams/Documents/R/332_data/332_data-main/dandelion_model")
+
+# Initialization
+width <- 224
+height<- 224
+target_size <- c(width, height)
+rgb <- 3 #color channels
+
+# Five Algorithms
 algorithm1 <- function(image, epsilon) {
   # Implement algorithm here
   return(adversarial_image)
@@ -32,17 +45,37 @@ algorithm5 <- function(image, epsilon) {
   return(adversarial_image)
 }
 
+# Default classification
+image <- image_load(path, target_size = target_size)
+image <- image_to_array(image)
+image <- array_reshape(image, c(1, dim(image)))
+image <- image/255
+
+pred <- model %>% predict(image) #[1,1] dandelion percentage, [1,2] grass percentage
+if (pred[1,1] > .5) {
+  trueImageClass <- "Dandelion"
+} else {
+  trueImageClass <- "Grass"
+}
+
 # Five modified images
 modImages <- c(algorithm1(image, epsilon), algorithm2(image, epsilon), 
                algorithm3(image, epsilon), algorithm4(image, epsilon), 
                alogirthm5(image, epsilon))
 
-# Generate predictions on the validation data for each algorithm
-for (i in 1:5) {
-  pred[i-1] <- model %>% predict(modImages[i])
-}
+# Create a matrix to hold the predictions of each algorithm for each sample
+predictions <- matrix(nrow = 2, ncol = 5)
+colnames(predictions) <- c("algorithm1", "algorithm2", "algorithm3", "algorithm4", "algorithm5")
 
-###Rest of code to be completed later########################
+# Fill in the matrix with the predictions of each algorithm
+predictions[, "algorithm1"] <- model %>% predict(modImages[1])
+predictions[, "algorithm2"] <- model %>% predict(modImages[2])
+predictions[, "algorithm3"] <- model %>% predict(modImages[3])
+predictions[, "algorithm4"] <- model %>% predict(modImages[4])
+predictions[, "algorithm5"] <- model %>% predict(modImages[5])
+
+print(predictions)
+
 
 #notes (for me): implement a 'successful?' decider that disqualifies algorithms based on pass/fail, take lowest algo
 
