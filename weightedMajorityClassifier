@@ -13,6 +13,10 @@ library(imager)
 # Load pre-trained model
 model=load_model_tf("./332_data/332_data-main/dandelion_model")
 
+# Pre-Classified lists
+grassUnmod=list.files("./332_data/data-for-332/grass/")
+dandUnmod=list.files("/home/jupyter/332_data/data-for-332/dandelions/")
+
 # Initialization
 width <- 224
 height<- 224
@@ -70,6 +74,9 @@ algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda
     # Ensure pixel values are in [0, 1]
     adv_image <- pmin(pmax(adv_image, 0), 1)
   }
+  
+  #image save
+  save.image(adv_image, file = paste("./332_data/data-for-332/modified_grass/", path, "_modified", sep=""))
   return(adv_image)
 }
 
@@ -110,7 +117,7 @@ if (trueImageClass == "Dandelion") {
   
   # Weighted majority classifier
   weighted_majority <- function(preds, weights) {
-    # Calculate the weighted sum of each class
+    # Calculate the weighted sum of each algorithm
     class_sums <- sapply(preds, function(class) {
       sum(weights[preds == class])
     })
