@@ -11,7 +11,7 @@ library(reticulate)
 library(imager)
 
 # Load pre-trained model
-model=load_model_tf("/Users/Brian Williams/Documents/R/332_data/332_data-main/dandelion_model")
+model=load_model_tf("./332_data/332_data-main/dandelion_model")
 
 # Initialization
 width <- 224
@@ -20,27 +20,27 @@ target_size <- c(width, height)
 rgb <- 3 #color channels
 
 # Five Algorithms
-algorithm1 <- function(image, epsilon) {
+algorithm1 <- function(image) {
   # Implement algorithm here
   return(adversarial_image)
 }
 
-algorithm2 <- function(image, epsilon) {
+algorithm2 <- function(image) {
   # Implement algorithm here
   return(adversarial_image)
 }
 
-algorithm3 <- function(image, epsilon) {
+algorithm3 <- function(image) {
   # Implement algorithm here
   return(adversarial_image)
 }
 
-algorithm4 <- function(image, epsilon) {
+algorithm4 <- function(image) {
   # Implement algorithm here
   return(adversarial_image)
 }
 
-algorithm5 <- function(image, epsilon) {
+algorithm5 <- function(image) {
   # Implement algorithm here
   return(adversarial_image)
 }
@@ -48,7 +48,7 @@ algorithm5 <- function(image, epsilon) {
 # Default classification
 image <- image_load(path, target_size = target_size)
 image <- image_to_array(image)
-image <- array_reshape(image, c(1, dim(image)))
+image <- array_reshape(image, c(1,  dim(image)))
 image <- image/255
 
 pred <- model %>% predict(image) #[1,1] dandelion percentage, [1,2] grass percentage
@@ -74,16 +74,50 @@ predictions[, "algorithm3"] <- model %>% predict(modImages[3])
 predictions[, "algorithm4"] <- model %>% predict(modImages[4])
 predictions[, "algorithm5"] <- model %>% predict(modImages[5])
 
-print(predictions)
 
 
-#notes (for me): implement a 'successful?' decider that disqualifies algorithms based on pass/fail, take lowest algo
+if (trueImageClass == "Dandelion") {
+  predVector <- as.vector(predictions[1,])
+  weights <- predVector / sum(predVector)
+  
+  # Weighted majority classifier
+  weighted_majority <- function(preds, weights) {
+    # Calculate the weighted sum of each class
+    class_sums <- sapply(preds, function(class) {
+      sum(weights[preds == class])
+    })
+    
+    # Return the algorithm with the highest weighted sum
+    return(names(which.max(class_sums)))
+  }
+} else {
+  predVector <- as.vector(predictions[2,])
+  weights <- predVector / sum(predVector)
+  
+  # Weighted majority classifier
+  weighted_majority <- function(preds, weights) {
+    # Calculate the weighted sum of each class
+    class_sums <- sapply(preds, function(class) {
+      sum(weights[preds == class])
+    })
+    
+    # Return the algorithm with the highest weighted sum
+    return(names(which.max(class_sums)))
+  }
+}
 
-# Assign weights based on each algorithm's performance on the validation data
-weights <- algorithm_performances / sum(algorithm_performances)
-
-# Part 4: Implement an optimizer that can select from the set of pixels identified by the five algorithms
-optimizer <- function(image, budget_ratio) {
-  # Implement an optimizer to select the N most influential pixels or use GA to select the best set of pixels
-  return(selected_pixels)
+if (weighted_majority(predVector, weights) == "algorithm1") {
+  algorithm1(image)
+} 
+if (weighted_majority(predVector, weights) == "algorithm2") {
+  algorithm2(image)
+}
+if (weighted_majority(predVector, weights) == "algorithm3") {
+  algorithm3(image)
+}
+if (weighted_majority(predVector, weights) == "algorithm4") {
+  algorithm4(image)
+}
+if (weighted_majority(predVector, weights) == "algorithm5") {
+  algorithm5(image)
 }
