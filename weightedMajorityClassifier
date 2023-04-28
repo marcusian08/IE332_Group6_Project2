@@ -76,9 +76,6 @@ algorithm5 <- function(image, label, n_pixels = 0.01, alpha = 0.01, tol = 0.0001
     grads <- grads * mask
     perturbation <- alpha * grads
     adv_image <- adv_image + perturbation
-    
-    # Ensure pixel values are in [0, 1]
-    adv_image <- pmin(pmax(adv_image, 0), 1)
   }
   return(adv_image)
 }
