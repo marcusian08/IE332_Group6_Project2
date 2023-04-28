@@ -47,7 +47,7 @@ algorithm4 <- function(image) {
   return(adversarial_image)
 }
 
-algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda = 0.001, num_pixels = 10) {
+algorithm5 <- function(image, label, alpha = 0.01, tol = 0.0001, lambda = 0.001) {
   adv_image <- image
   # Define the loss function
   loss <- function(y_true, y_pred) {
@@ -68,15 +68,15 @@ algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda
     
     # Add perturbation to image
     grads <- gradient(adv_image, label)
+    mask <- tf$ones_like(grads)
+    n_pixels <- sum(mask)
+    inds <- tf$math$top_k(tf$reshape(grads, shape = -1), k = n_pixels)
+    mask <- tf$reshape(mask, shape = -1)
+    mask[inds$values] <- 0
+    mask <- tf$reshape(mask, tf$shape(grads))
+    grads <- grads * mask
     perturbation <- alpha * grads
-    
-    # Clip the perturbation
-    pixel_values <- c(1:prod(dim(image)))
-    selected_pixels <- sample(pixel_values, num_pixels)
-    adv_image_flat <- as.vector(adv_image)
-    adv_image_flat[selected_pixels] <- adv_image_flat[selected_pixels] + perturbation[selected_pixels]
-    adv_image <- array_reshape(adv_image_flat, dim(image))
-    adv_image <- pmax(pmin(adv_image, image + epsilon), image - epsilon)
+    adv_image <- adv_image + perturbation
     
     # Ensure pixel values are in [0, 1]
     adv_image <- pmin(pmax(adv_image, 0), 1)
@@ -100,7 +100,7 @@ if (pred[1,1] > .5) {
 # Five modified images
 modImages <- c(algorithm1(image, epsilon), algorithm2(image, epsilon), 
                algorithm3(image, epsilon), algorithm4(image, epsilon), 
-               algorithm5(image, .1, 0))
+               algorithm5(image, 0))
 
 # Create a matrix to hold the predictions of each algorithm for each sample
 predictions <- matrix(nrow = 2, ncol = 5)
