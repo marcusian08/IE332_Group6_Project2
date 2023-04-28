@@ -40,9 +40,37 @@ algorithm4 <- function(image) {
   return(adversarial_image)
 }
 
-algorithm5 <- function(image) {
-  # Implement algorithm here
-  return(adversarial_image)
+algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda = 0.001) {
+  adv_image <- image
+  # Define the loss function
+  loss <- function(y_true, y_pred) {
+    tf$keras$losses$CategoricalCrossentropy()(y_true, y_pred)
+  }
+  
+  for (i in 1:10) {
+    # Define the gradient function
+    gradient <- function(x, label) {
+      x_tensor <- array_reshape(x, c(1, 224, 224, 3))
+      x_var <- tf$Variable(x_tensor)
+      with(tf$GradientTape(persistent = TRUE), {
+        loss_value <- loss(label, model %>% predict(x_var))
+        grads <- gradients(loss_value, x_var)
+        grads
+      })
+    }
+    
+    # Add perturbation to image
+    grads <- gradient(adv_image, label)
+    perturbation <- alpha * grads
+    adv_image <- adv_image + perturbation
+    
+    # Clip the perturbation
+    adv_image <- pmax(pmin(adv_image, image + epsilon), image - epsilon)
+    
+    # Ensure pixel values are in [0, 1]
+    adv_image <- pmin(pmax(adv_image, 0), 1)
+  }
+  return(adv_image)
 }
 
 # Default classification
@@ -61,7 +89,7 @@ if (pred[1,1] > .5) {
 # Five modified images
 modImages <- c(algorithm1(image, epsilon), algorithm2(image, epsilon), 
                algorithm3(image, epsilon), algorithm4(image, epsilon), 
-               alogirthm5(image, epsilon))
+               algorithm5(image, .1, 0))
 
 # Create a matrix to hold the predictions of each algorithm for each sample
 predictions <- matrix(nrow = 2, ncol = 5)
