@@ -74,10 +74,9 @@ for (i in f){
   
   #change the image
   P <- 5
-  grass_to_dandelion(x, P)
+  new_img <- grass_to_dandelion(x, P)
   
-  new_img <- image_load("./grass/modified_grass.jpg",
-                        target_size = target_size)
+  #new_img <- image_load("./grass/modified_grass.jpg", target_size = target_size)
   new <- image_to_array(new_img)
   new <- array_reshape(new, c(1, dim(new)))
   
@@ -98,10 +97,9 @@ for (i in f){
   
   #change the image
   P <- 5
-  dandelion_to_grass(x, P)
+  new_img <- dandelion_to_grass(x, P)
   
-  new_img <- image_load("./grass/modified_grass.jpg",
-                        target_size = target_size)
+  #new_img <- image_load("./grass/modified_grass.jpg",target_size = target_size)
   new <- image_to_array(new_img)
   new <- array_reshape(new, c(1, dim(new)))
   
@@ -119,9 +117,9 @@ for (i in f){
 
 #code given, runs model without change to img
 res=c("","")
-f=list.files("./grass")
+f=grassUnmod
 for (i in f){
-  test_image <- image_load(paste("./grass/",i,sep=""),
+  test_image <- image_load(paste(grassUnmod[i]),
                            target_size = target_size)
   x <- image_to_array(test_image)
   x <- array_reshape(x, c(1, dim(x)))
@@ -134,7 +132,7 @@ for (i in f){
 res=c("","")
 f=list.files("./dandelions")
 for (i in f){
-  test_image <- image_load(paste("./dandelions/",i,sep=""),
+  test_image <- image_load(paste(dandUnmod[i]),
                            target_size = target_size)
   x <- image_to_array(test_image)
   x <- array_reshape(x, c(1, dim(x)))
