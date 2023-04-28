@@ -47,7 +47,7 @@ algorithm4 <- function(image) {
   return(adversarial_image)
 }
 
-algorithm5 <- function(image, label, alpha = 0.01, tol = 0.0001, lambda = 0.001) {
+algorithm5 <- function(image, label, n_pixels = 0.01, alpha = 0.01, tol = 0.0001, lambda = 0.001) {
   adv_image <- image
   # Define the loss function
   loss <- function(y_true, y_pred) {
@@ -69,7 +69,6 @@ algorithm5 <- function(image, label, alpha = 0.01, tol = 0.0001, lambda = 0.001)
     # Add perturbation to image
     grads <- gradient(adv_image, label)
     mask <- tf$ones_like(grads)
-    n_pixels <- sum(mask)
     inds <- tf$math$top_k(tf$reshape(grads, shape = -1), k = n_pixels)
     mask <- tf$reshape(mask, shape = -1)
     mask[inds$values] <- 0
