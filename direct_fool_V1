@@ -28,14 +28,8 @@ dandelion_to_grass <- function (x, P) {
       }
     }
   }
-  
-  #convert x array into an image, save image as "./grass/modified_grass.jpg" 
-  writeJPEG(x, "./grass/modified_grass.jpg")
-  
-  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
-  
-  graphics::plot(1, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="", ylab="")
-  graphics::rasterImage(modified_image, 0, 0, 1, 1)
+  save.image(adv_image, file = paste("./332_data/data-for-332/modified_grass/", path, "_modified", sep=""))
+  return(adv_image)
 }
 
 grass_to_dandelion <- function (x, P) {
