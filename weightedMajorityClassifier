@@ -15,7 +15,10 @@ model=load_model_tf("./332_data/332_data-main/dandelion_model")
 
 # Pre-Classified lists
 grassUnmod=list.files("./332_data/data-for-332/grass/")
-dandUnmod=list.files("/home/jupyter/332_data/data-for-332/dandelions/")
+dandUnmod=list.files("./332_data/data-for-332/dandelions/")
+
+# Path to image that will be classified (change the index of grassUnmod[i] for specific image)
+path <- paste("./332_data/data-for-332/grass/", grassUnmod[1],sep="")
 
 # Initialization
 width <- 224
