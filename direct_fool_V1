@@ -69,9 +69,9 @@ target_size <- c(224, 224)
 
 #grass (Brightspace)
 
-f=list.files("./grass")
+f=grassUnmod
 for (i in f){
-  test_image <- image_load(paste("./grass/",i,sep=""),
+  test_image <- image_load(paste(grassUnmod[i]),
                            target_size = target_size)
   x <- image_to_array(test_image)
   x <- x/255
@@ -93,9 +93,9 @@ for (i in f){
 }
 
 #dandelions (Brightspace)
-f=list.files("./dandelions")
+f=dandUnmod
 for (i in f){
-  test_image <- image_load(paste("./dandelions/",i,sep=""),
+  test_image <- image_load(paste(dandUnmod[i]),
                            target_size = target_size)
   x <- image_to_array(test_image)
   x <- x/255
