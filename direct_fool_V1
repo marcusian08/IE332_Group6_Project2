@@ -6,12 +6,13 @@ library(jpeg)
 install_tensorflow(extra_packages="pillow")
 install_keras()
 
-setwd("C:/Users/kndoughe/Desktop/Project2")
-getwd()
 
 #load model
 model=load_model_tf("./332_data/332_data-main/dandelion_model")
 summary(model)
+
+grassUnmod=list.files("./332_data/data-for-332/grass/")
+dandUnmod=list.files("./332_data/data-for-332/dandelions/")
 
 #function, image is the image that gets changed, P is pixel %
 dandelion_to_grass <- function (x, P) {
