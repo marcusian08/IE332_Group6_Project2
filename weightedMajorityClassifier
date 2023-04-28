@@ -47,7 +47,7 @@ algorithm4 <- function(image) {
   return(adversarial_image)
 }
 
-algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda = 0.001) {
+algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda = 0.001, num_pixels = 10) {
   adv_image <- image
   # Define the loss function
   loss <- function(y_true, y_pred) {
@@ -69,17 +69,18 @@ algorithm5 <- function(image, epsilon, label, alpha = 0.01, tol = 0.0001, lambda
     # Add perturbation to image
     grads <- gradient(adv_image, label)
     perturbation <- alpha * grads
-    adv_image <- adv_image + perturbation
     
     # Clip the perturbation
+    pixel_values <- c(1:prod(dim(image)))
+    selected_pixels <- sample(pixel_values, num_pixels)
+    adv_image_flat <- as.vector(adv_image)
+    adv_image_flat[selected_pixels] <- adv_image_flat[selected_pixels] + perturbation[selected_pixels]
+    adv_image <- array_reshape(adv_image_flat, dim(image))
     adv_image <- pmax(pmin(adv_image, image + epsilon), image - epsilon)
     
     # Ensure pixel values are in [0, 1]
     adv_image <- pmin(pmax(adv_image, 0), 1)
   }
-  
-  #image save
-  save.image(adv_image, file = paste("./332_data/data-for-332/modified_grass/", path, "_modified", sep=""))
   return(adv_image)
 }
 
