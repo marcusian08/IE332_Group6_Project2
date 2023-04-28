@@ -1,0 +1,31 @@
+algorithm1 <- function(image, label){
+
+#function, image is the image that gets changed, P is pixel %
+random <- function (x, P) {
+  x_size <- dim(x)[1]
+  y_size <- dim(x)[1]
+  for (i in 1:x_size) {
+    for (j in 1:y_size) {
+      if ((((j-1) * x_size) + i) %% P == 0) {  
+        x[i,j,2] <- 1 #green 
+        x[i,j,3] <- 0 #blue 
+      }
+    }
+  }
+
+  #convert x array into an image, save image as "./grass/modified_grass.jpg" 
+  writeJPEG(x, "./grass/modified_grass.jpg")
+
+  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
+
+  graphics::plot(1, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="", ylab="")
+  graphics::rasterImage(modified_image, 0, 0, 1, 1)
+}
+  
+  #change the image
+  P <- 5
+  adv_img <- random(x, P)
+  
+  return(adv_img)
+  }
+  
