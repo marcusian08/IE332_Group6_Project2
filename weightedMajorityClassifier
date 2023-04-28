@@ -109,8 +109,7 @@ predictions[, "algorithm3"] <- model %>% predict(modImages[3])
 predictions[, "algorithm4"] <- model %>% predict(modImages[4])
 predictions[, "algorithm5"] <- model %>% predict(modImages[5])
 
-
-
+# 2 cases
 if (trueImageClass == "Dandelion") {
   predVector <- as.vector(predictions[1,])
   weights <- predVector / sum(predVector)
@@ -141,6 +140,7 @@ if (trueImageClass == "Dandelion") {
   }
 }
 
+# "Optimizer"
 if (weighted_majority(predVector, weights) == "algorithm1") {
   algorithm1(image)
 } 
