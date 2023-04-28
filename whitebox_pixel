@@ -1,0 +1,55 @@
+algorithm 2 <- function(image, label){
+
+#function, image is the image that gets changed, P is pixel %
+dandelion_to_grass <- function (x, P) {
+  x_size <- dim(x)[1]
+  y_size <- dim(x)[1]
+  for (i in 1:x_size) {
+    for (j in 1:y_size) {
+      if ((((j-1) * x_size) + i) %% P == 0) {
+        if((x[i,j,1] > 0.8) && (x[i,j,2] > 0.8) && (x[i,j,3]  < 0.8)) {
+          x[i,j,2] <- 1 #green 
+          x[i,j,3] <- 0 #blue 
+        }
+      }
+    }
+  }
+  writeJPEG(x, "./grass/modified_grass.jpg")
+  
+  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
+  
+  return(modified_image)
+}
+
+grass_to_dandelion <- function (x, P) {
+  x_size <- dim(x)[1]
+  y_size <- dim(x)[1]
+  for (i in 1:x_size) {
+    for (j in 1:y_size) {
+      if ((((j-1) * x_size) + i) %% P == 0) {  
+        if((x[i,j,1] < 0.3) && (x[i,j,2] > 0.3) && (x[i,j,3] < 0.3)) {
+        #adding yellow to make it look like dandelion
+          x[i,j,1] <- 1 # red
+          x[i,j,2] <- 1 #green 
+          x[i,j,3] <- 0 #blue
+        }
+      }
+    }
+  }
+  
+  #convert x array into an image, save image as "./grass/modified_grass.jpg" 
+  writeJPEG(x, "./grass/modified_grass.jpg")
+  
+  modified_image <- jpeg::readJPEG("./grass/modified_grass.jpg")
+  
+  return(modified_image)
+}
+
+for(file in grassUnmod){
+  adv_img <- grass_to_dandelion(image,p)}
+  
+for(file in dandUnmod){
+  adv_img <- dandelion_to_grass(image,p)}
+ 
+return(adv_image)
+}
